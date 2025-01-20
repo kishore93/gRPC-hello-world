@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "com.grpc.test";
+option java_outer_classname = "HelloWorldProto";
+
+service HelloService {
+  /*
+  Says hello response once to the hello request.
+   */
+  rpc SayHello (HelloRequest) returns (HelloResponse);
+  /*
+  Says hello response continuously to hello request.
+   */
+  rpc SayContinuousHello (HelloRequest) returns (stream HelloResponse);
+  /*
+  Client sends continuous requests to server with hello pings
+   */
+  rpc ClientContinuousHello (stream ClientActiveRequest) returns (RegisteredResponse);
+  /*
+  Bidirectional com system server responds once every two messages
+   */
+  rpc BidirectionalHello (stream ClientActiveRequest) returns (stream RegisteredResponse);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+}
+
+message ClientActiveRequest {
+  string clientId = 1;
+  google.protobuf.Timestamp activeAt = 2;
+}
+
+message RegisteredResponse {
+  string referenceId = 1;
+}

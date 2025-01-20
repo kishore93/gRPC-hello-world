@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: grpc-demo-service
+  grpc:
+    server:
+      reflection:
+        enabled: true # enable endpoint discovery
