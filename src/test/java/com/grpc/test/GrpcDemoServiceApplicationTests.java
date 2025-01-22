@@ -23,8 +23,8 @@ public class GrpcDemoServiceApplicationTests {
 		);
 	}
 
-	private HelloWorldProto.HelloRequest getHelloRequest(String name) {
-		return HelloWorldProto.HelloRequest.newBuilder()
+	private HelloRequest getHelloRequest(String name) {
+		return HelloRequest.newBuilder()
 				.setName(name)
 				.build();
 	}
@@ -32,10 +32,10 @@ public class GrpcDemoServiceApplicationTests {
 	@ParameterizedTest
 	@MethodSource("unaryEndpointTestDataProvider")
 	void testUnaryHelloWorld(String name) {
-		HelloWorldProto.HelloResponse helloResponse = serviceStub.sayHello(getHelloRequest(name));
+		HelloResponse helloResponse = serviceStub.sayHello(getHelloRequest(name));
 		Assertions.assertThat(helloResponse)
 				.describedAs("Response should have name that is requested")
-				.extracting(HelloWorldProto.HelloResponse::getMessage)
+				.extracting(HelloResponse::getMessage)
 				.isEqualTo("Hello " + name);
 	}
 

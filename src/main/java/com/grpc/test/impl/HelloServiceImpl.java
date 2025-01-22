@@ -1,8 +1,7 @@
 package com.grpc.test.impl;
 
 import com.google.protobuf.Timestamp;
-import com.grpc.test.HelloServiceGrpc;
-import com.grpc.test.HelloWorldProto;
+import com.grpc.test.*;
 import io.grpc.stub.StreamObserver;
 import org.springframework.grpc.server.service.GrpcService;
 
@@ -26,7 +25,7 @@ public class HelloServiceImpl extends HelloServiceGrpc.HelloServiceImplBase {
      * @param responseObserver
      */
     @Override
-    public void sayHello(HelloWorldProto.HelloRequest request, StreamObserver<HelloWorldProto.HelloResponse> responseObserver) {
+    public void sayHello(HelloRequest request, StreamObserver<HelloResponse> responseObserver) {
         responseObserver.onNext(getHelloResponse(request));
         responseObserver.onCompleted();
     }
@@ -40,7 +39,7 @@ public class HelloServiceImpl extends HelloServiceGrpc.HelloServiceImplBase {
      * @param responseObserver
      */
     @Override
-    public void sayContinuousHello(HelloWorldProto.HelloRequest request, StreamObserver<HelloWorldProto.HelloResponse> responseObserver) {
+    public void sayContinuousHello(HelloRequest request, StreamObserver<HelloResponse> responseObserver) {
         IntStream.range(0, 10)
                 .sequential()
                 .peek(_ -> {
@@ -64,12 +63,12 @@ public class HelloServiceImpl extends HelloServiceGrpc.HelloServiceImplBase {
      * @param responseObserver
      */
     @Override
-    public StreamObserver<HelloWorldProto.ClientActiveRequest> clientContinuousHello(StreamObserver<HelloWorldProto.RegisteredResponse> responseObserver) {
+    public StreamObserver<ClientActiveRequest> clientContinuousHello(StreamObserver<RegisteredResponse> responseObserver) {
         responseObserver.onNext(getRegisteredResponse());
         return new StreamObserver<>() {
 
             @Override
-            public void onNext(HelloWorldProto.ClientActiveRequest value) {
+            public void onNext(ClientActiveRequest value) {
                 var clientId = value.getClientId();
                 var timestamp = value.getActiveAt();
                 clientLastActive.putIfAbsent(clientId, timestamp);
@@ -96,11 +95,11 @@ public class HelloServiceImpl extends HelloServiceGrpc.HelloServiceImplBase {
      * @param responseObserver
      */
     @Override
-    public StreamObserver<HelloWorldProto.ClientActiveRequest> bidirectionalHello(StreamObserver<HelloWorldProto.RegisteredResponse> responseObserver) {
+    public StreamObserver<ClientActiveRequest> bidirectionalHello(StreamObserver<RegisteredResponse> responseObserver) {
         var state = new AtomicBoolean(true);
         return new StreamObserver<>() {
             @Override
-            public void onNext(HelloWorldProto.ClientActiveRequest value) {
+            public void onNext(ClientActiveRequest value) {
                 if (state.get()) {
                     responseObserver.onNext(getRegisteredResponse());
                     state.set(false);
@@ -121,15 +120,15 @@ public class HelloServiceImpl extends HelloServiceGrpc.HelloServiceImplBase {
         };
     }
 
-    private HelloWorldProto.RegisteredResponse getRegisteredResponse() {
-        return HelloWorldProto.RegisteredResponse
+    private RegisteredResponse getRegisteredResponse() {
+        return RegisteredResponse
                 .newBuilder()
                 .setReferenceId(UUID.randomUUID().toString())
                 .build();
     }
 
-    private HelloWorldProto.HelloResponse getHelloResponse(HelloWorldProto.HelloRequest request) {
-        return HelloWorldProto.HelloResponse.newBuilder()
+    private HelloResponse getHelloResponse(HelloRequest request) {
+        return HelloResponse.newBuilder()
                 .setMessage("Hello " + request.getName())
                 .build();
     }
